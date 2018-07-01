@@ -29,4 +29,3 @@ lein build
  * spec
  * transmission of PK and ciphertext together
  * authentication
- * separated namespaces?

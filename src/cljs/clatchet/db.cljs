@@ -1,7 +1,9 @@
-(ns clatchet.db)
+(ns clatchet.db
+  (:require
+   [re-frame.core :as rf]))
 
 (def default-db
-  {:curve :c192
+  {:curve :c521
    :keypair nil
    :foreign-key nil
    :hash nil
@@ -12,3 +14,8 @@
    :send-msg-key nil
    :plaintext "re-frame"
    :ciphertext ""})
+
+(rf/reg-event-db
+ ::initialize
+ (fn [_ _]
+   default-db))

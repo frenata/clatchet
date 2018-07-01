@@ -17,11 +17,6 @@
  (fn [db _]
    (:foreign-key db)))
 
-#_(rf/reg-sub
- ::hash
- (fn [db _]
-   (:hash db)))
-
 (rf/reg-sub
  ::public-key
  (fn [db _]

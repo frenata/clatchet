@@ -2,11 +2,9 @@
   (:require
    [reagent.core :as reagent]
    [re-frame.core :as re-frame]
-   [clatchet.events :as events]
+   [clatchet.db :as db]
    [clatchet.views :as views]
-   [clatchet.config :as config]
-   ))
-
+   [clatchet.config :as config]))
 
 (defn dev-setup []
   (when config/debug?
@@ -19,6 +17,6 @@
                   (.getElementById js/document "app")))
 
 (defn ^:export init []
-  (re-frame/dispatch-sync [::events/initialize-db])
+  (re-frame/dispatch-sync [::db/initialize])
   (dev-setup)
   (mount-root))
