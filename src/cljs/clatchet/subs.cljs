@@ -1,28 +1,28 @@
 (ns clatchet.subs
   (:require
-   [re-frame.core :as re-frame]))
+   [re-frame.core :as rf]))
 
-(re-frame/reg-sub
+(rf/reg-sub
  ::plaintext
  (fn [db _]
    (:plaintext db)))
 
-(re-frame/reg-sub
+(rf/reg-sub
  ::ciphertext
  (fn [db _]
    (:ciphertext db)))
 
-(re-frame/reg-sub
+(rf/reg-sub
  ::foreign-key
  (fn [db _]
-   (get-in db [:foreign-key :text])))
+   (:foreign-key db)))
 
-(re-frame/reg-sub
+(rf/reg-sub
  ::hash
  (fn [db _]
    (:hash db)))
 
-(re-frame/reg-sub
+(rf/reg-sub
  ::public-key
  (fn [db _]
    (some-> db

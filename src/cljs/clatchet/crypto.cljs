@@ -3,9 +3,11 @@
   (:require
    [sjcl]))
 
+(defonce curves (js->clj sjcl.ecc.curves :keywordize-keys true))
+
 (defn- gen-keypair
   [curve]
-  (sjcl.ecc.elGamal.generateKeys curve))
+  (sjcl.ecc.elGamal.generateKeys (curve curves)))
 
 (defn- serialize-keypair [pair]
   {:pub (-> pair .-pub .serialize)
@@ -13,23 +15,22 @@
 
 (defn- deserialize-foreign
   "Deserialize a foreign key."
-  [foreign]
-  ;; HACK these details should be parameterized
+  [curve foreign]
   (sjcl.ecc.deserialize (clj->js {:point foreign
-                                  :curve "c192"
+                                  :curve curve
                                   :secretKey false
                                   :type "elGamal"})))
 
 (def ->keypair
   "For a given elliptic curve, generate a keypair
-  and serialize it."
+  and serialize (the public half)."
   (comp serialize-keypair gen-keypair))
 
 (defn hash-keys
   "Hashes a foreign public key against a secret key."
-  [keypair foreign]
+  [curve keypair foreign]
   (let [sec     (:sec keypair)
-        foreign (deserialize-foreign foreign)]
+        foreign (deserialize-foreign curve foreign)]
 
     (.dh sec foreign)))
 
@@ -47,7 +48,6 @@
   [hash size root salt ranges]
   (let [prk (sjcl.misc.hkdf hash size root salt)
         slices (mk-slices ranges)]
-    #_(println slices)
     (map (fn [[s e]] (.slice prk s e)) slices)))
 
 (defn update-chain
@@ -62,7 +62,6 @@
 (defn ratchet
   "Symmetric ratchet"
   [chain-key]
-  #_(println chain-key)
   (let [kdf (hmac chain-key)]
     ;; TODO hmac encryption seems to expand the key size; bug?
     {:chain-key (.encrypt kdf "new chain")

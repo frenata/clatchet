@@ -1,6 +1,6 @@
 (ns clatchet.views
   (:require
-   [re-frame.core :as re-frame]
+   [re-frame.core :as rf]
    [clatchet.subs :as subs]
    [clatchet.events :as events]))
 

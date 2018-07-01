@@ -13,15 +13,15 @@
 
 (rf/reg-event-db
  ::set-plaintext
- (fn-traced [db [_ name]] (assoc db :plaintext name)))
+ (fn-traced [db [_ txt]] (assoc db :plaintext txt)))
 
 (rf/reg-event-db
  ::set-ciphertext
- (fn-traced [db [_ name]] (assoc db :ciphertext name)))
+ (fn-traced [db [_ txt]] (assoc db :ciphertext txt)))
 
 (rf/reg-event-db
  ::set-foreign-key
- (fn-traced [db [_ name]] (assoc-in db [:foreign-key :text] name)))
+ (fn-traced [db [_ txt]] (assoc db :foreign-key txt)))
 
 (rf/reg-event-fx
  ::init-ratchet
@@ -29,8 +29,8 @@
  (fn-traced [cofx _]
             (let [db (:db cofx)
                   pair (::cofx/gen-keypair cofx)
-                  foreign (get-in db [:foreign-key :text])
-                  hash (crypto/hash-keys pair foreign)
+                  foreign (:foreign-key db)
+                  hash (crypto/hash-keys (:curve db) pair foreign)
                   [root send-chain] (crypto/update-chain hash "send" (:root db))]
 
               {:db (assoc db
@@ -49,11 +49,11 @@
             ;; hash fk against new pair
             ;; ratchet send
             (let [db (:db cofx)
-                  foreign (get-in db [:foreign-key :text])
-                  hash (crypto/hash-keys (:keypair db) foreign)
+                  foreign (:foreign-key db)
+                  hash (crypto/hash-keys (:curve db) (:keypair db) foreign)
                   [root recv-chain] (crypto/update-chain hash "recv" (:root db))
                   pair (::cofx/gen-keypair cofx)
-                  hash (crypto/hash-keys pair foreign)
+                  hash (crypto/hash-keys (:curve db) pair foreign)
                   [root send-chain] (crypto/update-chain hash "send" root)]
 
               {:db (assoc db
@@ -67,7 +67,7 @@
  ::hash-keys
  (fn-traced [db [_ foreign]]
             (let [keypair (:keypair db)
-                  hash (crypto/hash-keys keypair foreign)]
+                  hash (crypto/hash-keys (:curve db) keypair foreign)]
               (assoc db :hash hash))))
 
 (rf/reg-event-fx

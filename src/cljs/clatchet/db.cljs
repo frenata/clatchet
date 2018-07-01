@@ -1,9 +1,7 @@
-(ns clatchet.db
-  (:require
-   [sjcl]))
+(ns clatchet.db)
 
 (def default-db
-  {:curve sjcl.ecc.curves.c192
+  {:curve :c192
    :keypair nil
    :foreign-key nil
    :hash nil
