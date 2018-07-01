@@ -63,7 +63,7 @@
                           :send-chain send-chain
                           :recv-chain recv-chain)})))
 
-(rf/reg-event-db
+#_(rf/reg-event-db
  ::hash-keys
  (fn-traced [db [_ foreign]]
             (let [keypair (:keypair db)
@@ -96,3 +96,17 @@
               (assoc db
                      chain (:chain-key keys)
                      msg   (:msg-key   keys)))))
+
+(rf/reg-event-db
+ ::encrypt
+ (fn-traced [db _]
+            (assoc db
+                   :ciphertext
+                   (crypto/encrypt (:plaintext db) (:send-msg-key db)))))
+
+(rf/reg-event-db
+ ::decrypt
+ (fn-traced [db _]
+            (assoc db
+                   :plaintext
+                   (crypto/decrypt (:ciphertext db) (:recv-msg-key db)))))

@@ -13,7 +13,10 @@
      [:label "plaintext"]
      [:input {:on-change #(->evt ::events/set-plaintext
                                  (-> % .-target .-value))
-              :value plain}]]))
+              :value plain}]
+     [:button {:on-click #(->evt ::events/encrypt)}
+      "encrypt"]
+     ]))
 
 (defn ciphertext []
   (let [cipher (<-sub ::subs/ciphertext)]
@@ -21,7 +24,10 @@
      [:label "ciphertext"]
      [:input {:on-change #(->evt ::events/set-ciphertext
                                  (-> % .-target .-value))
-              :value cipher}]]))
+              :value cipher}]
+     [:button {:on-click #(->evt ::events/decrypt)}
+      "decrypt"]
+     ]))
 
 (defn foreign-key []
   (let [foreign (<-sub ::subs/foreign-key)]
@@ -54,7 +60,7 @@
   [:div
    [:pre
     (with-out-str (println (<-sub ::subs/public-key)))]
-   [:pre
+   #_[:pre
     (with-out-str (println (<-sub ::subs/hash)))]
    ])
 
