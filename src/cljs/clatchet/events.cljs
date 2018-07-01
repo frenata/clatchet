@@ -23,6 +23,7 @@
  ::set-foreign-key
  (fn-traced [db [_ txt]] (assoc db :foreign-key txt)))
 
+;; resets root
 (rf/reg-event-fx
  ::init-ratchet
  [(rf/inject-cofx ::cofx/gen-keypair)]
@@ -31,7 +32,7 @@
                   pair (::cofx/gen-keypair cofx)
                   foreign (:foreign-key db)
                   hash (crypto/hash-keys (:curve db) pair foreign)
-                  [root send-chain] (crypto/update-chain hash "send" (:root db))]
+                  [root send-chain] (crypto/update-chain hash "send" nil)]
 
               {:db (assoc db
                           :keypair pair
@@ -43,11 +44,6 @@
  ::recv-fk
  [(rf/inject-cofx ::cofx/gen-keypair)]
  (fn-traced [cofx _]
-            ;; hash new fk against existing pair
-            ;; ratchet recieve
-            ;; generate new pair
-            ;; hash fk against new pair
-            ;; ratchet send
             (let [db (:db cofx)
                   foreign (:foreign-key db)
                   hash (crypto/hash-keys (:curve db) (:keypair db) foreign)
@@ -62,14 +58,7 @@
                           :root root
                           :send-chain send-chain
                           :recv-chain recv-chain)})))
-
-#_(rf/reg-event-db
- ::hash-keys
- (fn-traced [db [_ foreign]]
-            (let [keypair (:keypair db)
-                  hash (crypto/hash-keys (:curve db) keypair foreign)]
-              (assoc db :hash hash))))
-
+;; resets root
 (rf/reg-event-fx
  ::gen-keypair
  [(rf/inject-cofx ::cofx/gen-keypair)]
@@ -77,7 +66,9 @@
             (let [db   (:db cofx)
                   pair (::cofx/gen-keypair cofx)]
 
-              {:db (assoc db :keypair pair)})))
+              {:db (assoc db
+                          :keypair pair
+                          :root nil)})))
 
 (defn- extend-keyword
   [word extension]
@@ -100,12 +91,36 @@
 (rf/reg-event-db
  ::encrypt
  (fn-traced [db _]
+            (let [{:keys [chain-key msg-key]}
+                  (crypto/ratchet (:send-chain db))]
+              (assoc db
+                     :ciphertext
+                     (crypto/encrypt (:plaintext db) msg-key)
+                     :send-chain chain-key
+                     :send-msg-key msg-key))))
+
+(rf/reg-event-db
+ ::decrypt
+ (fn-traced [db _]
+            (let [{:keys [chain-key msg-key]}
+                  (crypto/ratchet (:recv-chain db))]
+            (assoc db
+                   :plaintext
+                   (crypto/decrypt (:ciphertext db) msg-key)
+                   :recv-chain chain-key
+                   :recv-msg-key msg-key))))
+
+;; Cryption without ratchet
+
+(rf/reg-event-db
+ ::just-encrypt
+ (fn-traced [db _]
             (assoc db
                    :ciphertext
                    (crypto/encrypt (:plaintext db) (:send-msg-key db)))))
 
 (rf/reg-event-db
- ::decrypt
+ ::just-decrypt
  (fn-traced [db _]
             (assoc db
                    :plaintext

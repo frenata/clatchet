@@ -22,3 +22,11 @@ To compile clojurescript to javascript:
 ```
 lein build
 ```
+
+## TODO
+
+ * error handling in `clatchet.crypto`
+ * spec
+ * transmission of PK and ciphertext together
+ * authentication
+ * separated namespaces?
