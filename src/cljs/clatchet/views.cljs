@@ -37,9 +37,18 @@
      ]))
 
 (defn control-panel []
-  [:button
-   {:on-click #(->evt ::events/gen-keypair)}
-   "Generate Key Pair"])
+  [:div
+   [:button
+    {:on-click #(->evt ::events/gen-keypair)}
+    "Generate Key Pair"]
+   [:button
+    {:on-click #(->evt ::events/ratchet :send)}
+    "Ratchet Send"]
+   [:button
+    {:on-click #(->evt ::events/ratchet :recv)}
+    "Ratchet Recv"]
+   ]
+  )
 
 (defn internals []
   [:div

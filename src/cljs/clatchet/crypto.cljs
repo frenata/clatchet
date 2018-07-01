@@ -47,10 +47,24 @@
   [hash size root salt ranges]
   (let [prk (sjcl.misc.hkdf hash size root salt)
         slices (mk-slices ranges)]
-    (println slices)
+    #_(println slices)
     (map (fn [[s e]] (.slice prk s e)) slices)))
 
 (defn update-chain
   "Update a ratchet chain."
   [hash name root]
   (hkdf hash 512 root "update chain" [8 8]))
+
+(defn- hmac
+  [key]
+  (sjcl.misc.hmac. key sjcl.hash.sha512))
+
+(defn ratchet
+  "Symmetric ratchet"
+  [chain-key]
+  #_(println chain-key)
+  (let [kdf (hmac chain-key)]
+    ;; TODO hmac encryption seems to expand the key size; bug?
+    {:chain-key (.encrypt kdf "new chain")
+     :msg-key   (.encrypt kdf "new msg")}
+    ))

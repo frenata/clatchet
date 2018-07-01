@@ -78,3 +78,21 @@
                   pair (::cofx/gen-keypair cofx)]
 
               {:db (assoc db :keypair pair)})))
+
+(defn- extend-keyword
+  [word extension]
+  (-> word
+      name
+      (str extension)
+      keyword))
+
+(rf/reg-event-db
+ ::ratchet
+ (fn-traced [db [_ which]]
+            (let [chain (extend-keyword which "-chain")
+                  msg   (extend-keyword which "-msg-key")
+                  keys  (crypto/ratchet (chain db))]
+
+              (assoc db
+                     chain (:chain-key keys)
+                     msg   (:msg-key   keys)))))
