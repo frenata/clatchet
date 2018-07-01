@@ -25,18 +25,50 @@
 
 (rf/reg-event-fx
  ::init-ratchet
+ [(rf/inject-cofx ::cofx/gen-keypair)]
  (fn-traced [cofx _]
             (let [db (:db cofx)
-                  obj (crypto/deserialize-foreign (get-in db [:foreign-key :text]))]
+                  pair (::cofx/gen-keypair cofx)
+                  foreign (get-in db [:foreign-key :text])
+                  hash (crypto/hash-keys pair foreign)
+                  [root send-chain] (crypto/update-chain hash "send" (:root db))]
 
-              {:db (assoc-in db [:foreign-key :obj] obj)
-               :dispatch [::hash-keys obj]})))
+              {:db (assoc db
+                          :keypair pair
+                          :hash hash
+                          :root root
+                          :send-chain send-chain)})))
+
+(rf/reg-event-fx
+ ::recv-fk
+ [(rf/inject-cofx ::cofx/gen-keypair)]
+ (fn-traced [cofx _]
+            ;; hash new fk against existing pair
+            ;; ratchet recieve
+            ;; generate new pair
+            ;; hash fk against new pair
+            ;; ratchet send
+            (let [db (:db cofx)
+                  foreign (get-in db [:foreign-key :text])
+                  hash (crypto/hash-keys (:keypair db) foreign)
+                  [root recv-chain] (crypto/update-chain hash "recv" (:root db))
+                  pair (::cofx/gen-keypair cofx)
+                  hash (crypto/hash-keys pair foreign)
+                  [root send-chain] (crypto/update-chain hash "send" root)]
+
+              {:db (assoc db
+                          :keypair pair
+                          :hash hash
+                          :root root
+                          :send-chain send-chain
+                          :recv-chain recv-chain)})))
 
 (rf/reg-event-db
  ::hash-keys
  (fn-traced [db [_ foreign]]
-            (let [keypair (:keypair db)]
-              (assoc db :hash (crypto/hash-keys keypair foreign)))))
+            (let [keypair (:keypair db)
+                  hash (crypto/hash-keys keypair foreign)]
+              (assoc db :hash hash))))
 
 (rf/reg-event-fx
  ::gen-keypair

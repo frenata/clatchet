@@ -11,7 +11,7 @@
   {:pub (-> pair .-pub .serialize)
    :sec (-> pair .-sec)})
 
-(defn deserialize-foreign
+(defn- deserialize-foreign
   "Deserialize a foreign key."
   [foreign]
   ;; HACK these details should be parameterized
@@ -27,7 +27,30 @@
 
 (defn hash-keys
   "Hashes a foreign public key against a secret key."
-  [keypair foreign-key]
-  (-> keypair
-      :sec
-      (.dh foreign-key)))
+  [keypair foreign]
+  (let [sec     (:sec keypair)
+        foreign (deserialize-foreign foreign)]
+
+    (.dh sec foreign)))
+
+(defn- mk-slices
+  "Transform a list of sizes into a list of slice arguments.
+  [8 4 2] -> '([0 8] [8 12] [12 14])"
+  ([ranges] (mk-slices ranges 0))
+  ([[r & ranges] start]
+   (if r
+     (cons [start (+ start r)]
+           (lazy-seq (mk-slices ranges (+ start r)))))))
+
+(defn- hkdf
+  "Extract and slice up a pseudorandom key from a hash."
+  [hash size root salt ranges]
+  (let [prk (sjcl.misc.hkdf hash size root salt)
+        slices (mk-slices ranges)]
+    (println slices)
+    (map (fn [[s e]] (.slice prk s e)) slices)))
+
+(defn update-chain
+  "Update a ratchet chain."
+  [hash name root]
+  (hkdf hash 512 root "update chain" [8 8]))

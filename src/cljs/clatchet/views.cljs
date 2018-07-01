@@ -30,7 +30,11 @@
      [:input {:on-change #(->evt ::events/set-foreign-key
                                  (-> % .-target .-value))
               :value foreign}]
-     [:button {:on-click #(->evt ::events/init-ratchet)}]]))
+     [:button {:on-click #(->evt ::events/init-ratchet)}
+      "init"]
+     [:button {:on-click #(->evt ::events/recv-fk)}
+      "recv fk"]
+     ]))
 
 (defn control-panel []
   [:button

@@ -7,9 +7,9 @@
    :keypair nil
    :foreign-key nil
    :hash nil
-   :root-key nil
-   :recv-chain-key nil
-   :send-chain-key nil
+   :root nil
+   :recv-chain nil
+   :send-chain nil
    :recv-msg-key nil
    :send-msg-key nil
    :plaintext "re-frame"
