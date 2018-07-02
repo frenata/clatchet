@@ -29,3 +29,4 @@ lein build
  * spec
  * transmission of PK and ciphertext together
  * authentication
+ * real example over websockets

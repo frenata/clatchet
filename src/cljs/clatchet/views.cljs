@@ -56,6 +56,18 @@
    [:pre
     (with-out-str (println (<-sub ::subs/public-key)))]])
 
+(defn info []
+  [:div
+   [:ol
+    [:li "Alice generates a keypair."]
+    [:li "Alice sends her public key to Bob."]
+    [:li "Bob runs `init` on Alice's key."]
+    [:li "Bob encrypts some plaintext."]
+    [:li "Bob sends his public key and ciphertext to Alice."]
+    [:li "Alice runs `recv fk` on Bob's key."]
+    [:li "Alice decrypts Bob's ciphertext."]]
+   [:p "Steps 4-7 repeat, with new public keys being transmitted and received only when the 'polarity' of the conversation changes."]])
+
 (defn main-panel []
   [:div
    [control-panel]
@@ -64,4 +76,6 @@
    [:hr]
    [foreign-key]
    [plaintext]
-   [ciphertext]])
+   [ciphertext]
+   [:hr]
+   [info]])
