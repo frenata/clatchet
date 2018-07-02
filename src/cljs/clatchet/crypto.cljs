@@ -58,7 +58,7 @@
 
 (defn update-chain
   "Update a ratchet chain with a new hash."
-  [hash name root]
+  [hash root]
   (hkdf hash 512 root "update chain" [8 8]))
 
 (defn- hmac

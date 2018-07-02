@@ -6,7 +6,7 @@
 
 (rf/reg-cofx
  ::gen-keypair
- (fn [cofx _]
+ (fn-traced [cofx _]
    (let [curve (-> cofx :db :curve)]
      (assoc cofx
             ::gen-keypair

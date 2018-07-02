@@ -1,6 +1,7 @@
 (ns clatchet.db
   (:require
-   [re-frame.core :as rf]))
+   [re-frame.core :as rf]
+   [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]))
 
 (def default-db
   {:curve :c521

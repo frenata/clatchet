@@ -5,16 +5,15 @@
    [clatchet.crypto :as crypto]
    [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]))
 
-;; resets root
 (rf/reg-event-fx
  ::init-ratchet
  [(rf/inject-cofx ::cofx/gen-keypair)]
  (fn-traced [cofx _]
-            (let [db (:db cofx)
-                  pair (::cofx/gen-keypair cofx)
-                  foreign (:foreign-key db)
-                  hash (crypto/hash-keys (:curve db) pair foreign)
-                  [root send-chain] (crypto/update-chain hash "send" nil)]
+            (let [db                (:db cofx)
+                  pair              (::cofx/gen-keypair cofx)
+                  foreign           (:foreign-key db)
+                  hash              (crypto/hash-keys (:curve db) pair foreign)
+                  [root send-chain] (crypto/update-chain hash nil)]
 
               {:db (assoc db
                           :keypair pair
@@ -26,13 +25,18 @@
  ::recv-fk
  [(rf/inject-cofx ::cofx/gen-keypair)]
  (fn-traced [cofx _]
-            (let [db (:db cofx)
-                  foreign (:foreign-key db)
-                  hash (crypto/hash-keys (:curve db) (:keypair db) foreign)
-                  [root recv-chain] (crypto/update-chain hash "recv" (:root db))
-                  pair (::cofx/gen-keypair cofx)
-                  hash (crypto/hash-keys (:curve db) pair foreign)
-                  [root send-chain] (crypto/update-chain hash "send" root)]
+            (let [db                (:db cofx)
+                  foreign           (:foreign-key db)
+                  hash              (crypto/hash-keys (:curve db)
+                                                      (:keypair db)
+                                                      foreign)
+                  [root recv-chain] (crypto/update-chain hash (:root db))
+                  ;; generate new pair and hash again
+                  pair              (::cofx/gen-keypair cofx)
+                  hash              (crypto/hash-keys (:curve db)
+                                                      pair
+                                                      foreign)
+                  [root send-chain] (crypto/update-chain hash root)]
 
               {:db (assoc db
                           :keypair pair
@@ -40,7 +44,6 @@
                           :root root
                           :send-chain send-chain
                           :recv-chain recv-chain)})))
-;; resets root
 (rf/reg-event-fx
  ::gen-keypair
  [(rf/inject-cofx ::cofx/gen-keypair)]
