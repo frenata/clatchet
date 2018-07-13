@@ -1,0 +1,89 @@
+* Why?
+People want to communicate securely over unsecured mediums.
+
+Without resorting to trusting any third-party to negotiate their security.
+
+Signal and WhatsApp both use this protocol to guarantee
+'end-to-end' encryption, so that only the parties involved can decrypt messages.
+* Cryptography Primer
+(trigger warning: math)
+* Caesar Cipher
+One of the oldest known ciphers:
+Rotate individual letters by ~n~.
+For the key '3':
+ * plaintext  "dog"
+ * ciphertext "grj"
+* Key exchange
+This isn't very useful if your key is known!
+Enter public key cryptography, 
+to allow two parties to agree on a key 
+over an untrusted network.
+* One way functions
+Must be trivial to compute output from input
+But difficult to compute input from output
+
+In other words:
+ f(x) = g
+ f'(g) = ???
+s.t. f' is the inverse of f
+* Diffie-Hellman
+Alice and Bob want to agree on a key.
+ * they use a public base value ~g~
+   and a public modulo ~p~
+ * Alice chooses her secret number ~a~
+ * Bob chooses his secret number   ~b~
+ * Alice publishes ~g^a mod p~ as ~A~.
+ * Bob publishes   ~g^b mod p~ as ~B~.
+ * Alice computes  ~B^a mod p~ == ~g^b^a mod p~.
+ * Bob computes    ~A^b mod p~ == ~g^a^b mod p~.
+ * By the properties of exponents,
+   ~g^a^b~ == ~g^b^a~, Bob and Alice have
+   computed the same number, but neither
+   has transmitted their secret number.
+ * And for large values, 
+   ~b~ is not computable from ~g^b mod p~
+* (practical example)
+* Symmetric Ratchet
+A critical concern is to avoid encrypting more than one message
+with the same key, so the first part of the protocol is the 
+Symmetric Ratchet:
+[[./img/sym-ratchet.png]]
+On every send/recieve, we apply a "key derivation function" that generates
+new keys from the previous state.
+* Compromise!
+But what if an attacker compromises one of the keys?
+Not only can they compute all future keys, and decrypt
+all future messages, 
+but they may be able to work backwards and compute 
+all previous keys.
+
+The problem is the 'Constant'.
+* The Problem
+The constant can't be randomly chosen, because
+for any of this to work, Alice and Bob have to agree
+on what the constant is.
+
+And no one else is allowed to know what the constant is
+or we'll be in a position to have catastrophic compromises
+again.
+
+How can Alice and Bob agree on a shared secret constant?
+* Diffie-Hellman Ratchet
+Everytime we need a new constant, we can use DH again:
+[[./img/dh-ratchet-1.png]]
+[[./img/dh-ratchet-2.png]]
+From an attacker's standpoint, the output of DH is random.
+* The Double Ratchet
+Bringing it all together in a full diagram of the protocol:
+[[./img/double-ratchet.png]]
+The DH ratchet is used to compute a "root chain",
+and the symmetric ratchet is used to compute separate chains
+for sending and recieving, each derived from the root.
+
+With the design the protocol provides *forward security* against
+key compromise.
+
+Note: the DH ratchet is only performed when sender/reciever
+positions change. An examination of the properties of DH
+will indicate why this is unavoidable.
+* Demo!

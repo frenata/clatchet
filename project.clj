@@ -13,7 +13,8 @@
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"]
 
-  :figwheel {:css-dirs ["resources/public/css"]}
+  :figwheel {:css-dirs ["resources/public/css"]
+             :server-port 3501}
 
   :aliases {"dev" ["do" "clean"
                         ["pdo" ["figwheel" "dev"]]]
@@ -24,7 +25,7 @@
   :profiles
   {:dev
    {:dependencies [[binaryage/devtools "0.9.10"]
-                   [binaryage/dirac "1.2.35"]
+                   [binaryage/dirac "1.2.36"]
                    [day8.re-frame/re-frame-10x "0.3.3"]
                    [day8.re-frame/tracing "0.5.1"]
                    [figwheel-sidecar "0.5.13"]
