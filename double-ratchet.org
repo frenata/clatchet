@@ -43,6 +43,31 @@ Alice and Bob want to agree on a key.
  * And for large values, 
    ~b~ is not computable from ~g^b mod p~
 * (practical example)
+Given (relatively prime) constants:
+    g = 5
+    p = 23
+
+Alice's secret:
+    a = 14
+    A = g^a mod p
+      = 5^14 mod 23
+      = 13
+
+Bob's secret:
+    b = 9
+    B = g^b mod p 
+      = 5^9 mod 23 
+      = 11 
+
+Alice computes the secret:
+    s = B^a mod p 
+      = 11^14 mod 23
+      = 3 
+
+Bob computes the secret:
+    s = A^b mod p 
+      = 13^9 mod 23
+      = 3
 * Symmetric Ratchet
 A critical concern is to avoid encrypting more than one message
 with the same key, so the first part of the protocol is the 
@@ -86,4 +111,10 @@ key compromise.
 Note: the DH ratchet is only performed when sender/reciever
 positions change. An examination of the properties of DH
 will indicate why this is unavoidable.
-* Demo!
+* Demo and Resources
+ * original whitepaper 
+   https://signal.org/docs/specifications/doubleratchet/
+ * clojurescript demo  
+   https://github.com/frenata/clatchet
+ * diffie-hellman      
+   https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange
