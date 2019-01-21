@@ -1,6 +1,6 @@
 # clatchet
 
-A toy implementation of the Double Ratchet protocol.
+A toy implementation of the [Double Ratchet](https://signal.org/docs/specifications/doubleratchet/) protocol.
 
 ## Development Mode
 
