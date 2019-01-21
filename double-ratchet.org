@@ -1,5 +1,5 @@
 * Why?
-People want to communicate securely over unsecured mediums.
+People want to communicate securely over insecure mediums.
 
 Without resorting to trusting any third-party to negotiate their security.
 
