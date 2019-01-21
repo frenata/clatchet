@@ -3,6 +3,8 @@
   (:require
    [sjcl]))
 
+;; TODO investigate alternatives to `sjcl`.
+
 ;;; DH Ratchet
 
 (defonce curves (js->clj sjcl.ecc.curves :keywordize-keys true))
